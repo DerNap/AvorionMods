@@ -1,0 +1,123 @@
+-- Notice to self... understanding "Rarity" values in formulars:
+-- rarity enum values
+    -- Petty       -- grey   -- -1
+    -- Common      -- white  -- 0
+    -- Uncommon    -- green  -- 1
+    -- Rare        -- blue   -- 2
+    -- Exceptional -- yellow -- 3
+    -- Exotic      -- orange -- 4
+    -- Legendary   -- purple -- 5
+-- This makes in formulars usually using "(rarity.value + 1)" the factors range from 0-6
+-- using "max(1, rarity.value + 1)" assures you have a multiplicator of at least 1 
+-- petty and common items will be treated same in this case though
+
+-- *************************************************************************************
+
+-- For balancing:
+-- Examples for ship size vs energy creation ratios
+-- random workshop ships used
+
+-- System  | Energy     | Energy     | Energy   | Cargo
+-- Sockets | generated  | required   | overhead | hold
+-- ------------------------------------------------------------
+-- S-4     |   10.27 GW |    2.47 GW | ~   7 GW | 0
+-- S-5     |   14.17 GW |    5.46 GW | ~   9 GW | 363
+-- S-6     |   18.91 GW |    7.23 GW | ~  11 GW | 1009
+-- S-8     |  116.78 GW |   55.14 GW | ~  61 GW | 21
+-- S-10    |  187.26 GW |  130.25 GW | ~  57 GW | 48
+-- S-12    |  747.69 GW |  368.66 GW | ~ 350 GW | 0
+-- S-15    | 2180.00 GW | 1450.00 GW | ~ 700 GW | 619
+-- C1-3    |   20.67 GW |   13.18 GW |    ~7 GW | 547
+-- C2-7    |   32.85 GW |   18.95 GW |   ~13 GW | 661
+-- C3-11   |  192.33 GW |  140.33 GW |   ~50 GW | 24000
+-- C4-15   |  836.96 GW |  156.16 GW |  ~680 GW | 134000
+
+
+-- aimed energy consumption per module:
+    -- Petty                                                                        200
+    -- Common      -- white  -- 0  --> meant for S3-S4 ->  0.8 -  1.5 GW -> cargo   500
+    -- Uncommon    -- green  -- 1  --> meant for S5    ->  1.5 -  2.0 GW -> cargo  1500
+    -- Rare        -- blue   -- 2  --> meant for S6    ->  2.0 -  3.0 GW -> cargo  4000
+    -- Exceptional -- yellow -- 3  --> meant for S8    ->  5.0 -  8.0 GW -> cargo 10000
+    -- Exotic      -- orange -- 4  --> meant for S10   ->  8.0 - 10.0 GW -> cargo 25000
+    -- Legendary   -- purple -- 5  --> meant for S12+  -> 10.0 - 20.0 GW -> cargo 70000
+
+-- currently implemented energy consumption
+    -- Petty       -- grey   -- -1 ->  5.1 GW
+    -- Common      -- white  -- 0  ->  6.3 GW
+    -- Uncommon    -- green  -- 1  ->  7.7 GW
+    -- Rare        -- blue   -- 2  -> 10.2 GW
+    -- Exceptional -- yellow -- 3  -> 11.9 GW
+    -- Exotic      -- orange -- 4  -> 13.6 GW
+    -- Legendary   -- purple -- 5  -> 15.3 GW
+
+
+
+
+
+-- bonusses added to systems globally:
+
+-- more processing power for all modules since these are co-processors
+-- taking the load from the main cpu
+
+
+-- bonusses by type:
+
+-- military turret-systems co-processor
+    -- adds scanner reach for HP on enemies
+    -- adds military combat slots turrets+defense turrets
+    -- adds auto aim slots
+    -- increases turret fire rate
+    -- adds loot range extender
+    -- TODO? damage booosters?
+
+-- civil turret-system co-processor
+    -- adds mining system
+    -- adds civil turret slots
+    -- adds auto aim slots
+    -- adds loot range extender
+    -- adds teleport system for distant docking
+
+-- military fleet coordinator co-processor
+    -- adds scanner reach for HP on enemies
+    -- adds more fighters
+    -- adds teleport system for fighter cargo pickup
+    -- adds defence slots for anti fighter/torpedo 
+
+-- long distance / travaler /voyager co-proc -- trader
+    -- trader system
+    -- cargo boost
+    -- adds teleport system for distant docking
+    -- hyperspace distance booster
+
+-- bridge assistance co-proc -- intelligence
+    -- valuables detector
+    -- long distance radar/scanner
+    -- adds scanner reach for HP on enemies
+    -- hyperspace cooldown
+    -- add turnspeed boost
+
+-- todo/ideas
+
+-- actually not fitting in bridge assistance
+    -- hyperspace booster`? distance/speed?
+    -- bigger batteries?
+    -- generator booster?
+
+-- defense
+    -- defense turrets
+    -- internal defense turrets
+    -- shield booster
+    -- shield charger
+    -- shield damage absorbers?
+    -- shield impenetrator
+    -- bigger batteries
+    -- generator booster
+
+  -- dexterity defense? co-proc
+    -- add acceleraton boost (easier reach combat speed)
+    -- shield booster
+    -- shield charger
+    -- bigger batteries
+    -- generator booster
+
