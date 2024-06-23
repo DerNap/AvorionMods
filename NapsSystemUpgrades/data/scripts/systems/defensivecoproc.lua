@@ -86,9 +86,9 @@ function getDescriptionLines(seed, rarity, permanent)
     table.insert(texts, {ltext = "AA-Tech Military Combat Coprocessor"%_t})
 	table.insert(texts, {ltext = "Adds slots for armed turrets"%_t, rtext = "", icon = "data/textures/icons/nothing.png", fontType = FontType.Normal, lcolor = ColorRGB(0.7, 0.7, 0.7)})
 	
-        {ltext = "Internal Defense Weapons System"%_t, rtext = "", icon = ""},
-        {ltext = "Adds internal defense weapons to fight off enemy boarders"%_t, rtext = "", icon = ""}
-    }
+        --{ltext = "Internal Defense Weapons System"%_t, rtext = "", icon = ""},
+        --{ltext = "Adds internal defense weapons to fight off enemy boarders"%_t, rtext = "", icon = ""}
+    --}
 end
 
 function getComparableValues(seed, rarity)

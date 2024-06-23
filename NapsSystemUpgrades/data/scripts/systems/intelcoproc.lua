@@ -27,6 +27,8 @@ local orig_thrusters_basePitch = -1
 local orig_thrusters_baseRoll = -1
 local orig_thrusters_baseYaw = -1
 
+local highlightColor = ColorRGB(1.0, 1.0, 1.0)
+
 -- optimization so that energy requirement doesn't have to be read every frame
 FixedEnergyRequirement = true
 --PermanentInstallationOnly = true
@@ -205,8 +207,8 @@ function onInstalled(seed, rarity, permanent)
     -- thruster boost
     local thrusterboost = getThrusterBonuses(seed, rarity, permanent)
 	if thrusterboost ~= 0 then
+        local thrusters = Thrusters()
 		if thrusters ~= nil then
-			local thrusters = Thrusters()
 			orig_thrusters_basePitch = thrusters.basePitch
 			orig_thrusters_baseRoll = thrusters.baseRoll
 			orig_thrusters_baseYaw = thrusters.baseYaw
@@ -256,6 +258,7 @@ function updateClient(timeStep)
             interestingEntities = {}
         end
     end
+    sendMessageForValuables()
 end
 
 function onDetectorButtonPressed()
@@ -381,7 +384,6 @@ end
 
 local automaticMessageDisplayed
 function sendMessageForValuables()
-    if automaticMessageDisplayed then return end
     if not permanentlyInstalled then return end
 
     local player = Player()
@@ -391,18 +393,17 @@ function sendMessageForValuables()
     if player.craftIndex ~= self.index then return end
 
     local objects = collectHighlightableObjects()
+    if tablelength(objects) == 0 then
+        removeShipProblem("ValuablesDetector", self.id)
+    end    
+    if automaticMessageDisplayed then return end
 
     -- notify player that entities were found
     if tablelength(objects) > 0 then
         displayChatMessage("Valuable objects detected."%_t, "Object Detector"%_t, ChatMessageType.Information)
+        addShipProblem("ValuablesDetector", self.id, "Valuable objects detected."%_t, "data/textures/icons/valuables-detected.png", highlightColor)
         automaticMessageDisplayed = true
     end
-
-    addShipProblem("ValuablesDetector", self.id, "Valuable objects detected."%_t, "data/textures/icons/valuables-detected.png", highlightColor)
-
-    if #interestingEntities == 0 then
-        removeShipProblem("ValuablesDetector", self.id)
-    end    
 end
 
 function onPreRenderHud()
@@ -492,7 +493,7 @@ function getPrice(seed, rarity)
     local price = 0
 
     -- add scanner price
-    local scanner, _, _ = getScannerBonuses(seed, rarity, permanent)
+    local scanner, _, _ = getScannerBonuses(seed, rarity, true)
     price = price + scanner * 100 * 250 * 2.5 ^ (rarity.value + 1)
 
     -- add radar price
@@ -505,7 +506,7 @@ function getPrice(seed, rarity)
     price = price + ((rarity.value + 2) * 750 + range * 1.5)  * 2.5 ^ (rarity.value + 1)
 
     -- add thruster boost price
-    local thrusterboost = getThrusterBonuses(seed, rarity, permanent)
+    local thrusterboost = getThrusterBonuses(seed, rarity, true)
     price = price + (rarity.value + 2) * 750 * thrusterboost * 5000 * 2.5 ^ (rarity.value + 1)
 
     -- add hyperspace cooldown energy price

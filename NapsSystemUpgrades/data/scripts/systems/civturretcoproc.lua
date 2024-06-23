@@ -39,16 +39,18 @@ function getMiningSystemBonuses(seed, rarity, permanent)
 
     local range = 400 -- base value
     -- add flat range based on rarity
-    range = range + (rarity.value + 1) * 200 -- add 0 (worst rarity) to +1200 (best rarity)
+    range = range + (rarity.value + 1) * 400 -- add 0 (worst rarity) to +1200 (best rarity)
+    -- add randomized range, span is based on rarity
+    range = range + math.random() * ((rarity.value + 1) * 20) -- add random value between 0 (worst rarity) and 120 (best rarity)
 
     local material = rarity.value + 1
     if math.random() < 0.25 then
         material = material + 1
     end
 
-    local amount = 3
+    local amount = 6
     -- add flat amount based on rarity
-    amount = amount + (rarity.value + 1) * 2 -- add 0 (worst rarity) to +120 (best rarity)
+    amount = amount + (rarity.value + 1) * 4 -- add 0 (worst rarity) to +120 (best rarity)
     -- add randomized amount, span is based on rarity
     amount = amount + math.random() * ((rarity.value + 1) * 5) -- add random value between 0 (worst rarity) and 60 (best rarity)
 
@@ -58,7 +60,7 @@ function getMiningSystemBonuses(seed, rarity, permanent)
         material = material + 1
     end
 
-    return material, range, amount
+    return material, math.min(range,2000), amount
 end
 
 function sort(a, b)
@@ -76,8 +78,11 @@ function onPreRenderHud()
 
     local shipPos = ship.translationf
 
+    -- we got a strange limit when using getEntitiesByLocation. when going above 2000 we don't get reliable results
+    -- so we kindof limit the distance to 20km. Maybe there is some issue with the render distance
     local sphere = Sphere(shipPos, gMatRange)
     local nearby = {Sector():getEntitiesByLocation(sphere)}
+    
     local displayed = {}
 
     -- detect all asteroids in range
@@ -96,7 +101,7 @@ function onPreRenderHud()
                 end
             end
         end
-
+        
     end
 
     -- sort by distance
@@ -140,7 +145,7 @@ function getNumTurrets(seed, rarity, permanent)
 
     local autos = 0
     if permanent then
-        autos = turrets
+        autos = turrets +10
     end
 
     return turrets, pdcs, autos
@@ -170,12 +175,13 @@ function onInstalled(seed, rarity, permanent)
     end
     gMatLevel, gMatRange, gMatAmount = getMiningSystemBonuses(seed, rarity, permanent)
     addAbsoluteBias(StatsBonuses.ScannerMaterialReach, gMatRange)
+    Entity():addScriptOnce("data/scripts/entity/utility/uncovermineablematerial.lua")
 
     -- add loot range
     addAbsoluteBias(StatsBonuses.LootCollectionRange, getLootCollectionRange(seed, rarity, permanent))
 
     -- transporter range
-    local tpRange, fighterCargoPickup = getTransporterBonuses(seed, rarity, permanent)
+    local tpRange, _ = getTransporterBonuses(seed, rarity, permanent)
     addAbsoluteBias(StatsBonuses.TransporterRange, tpRange)
 
     -- add turrets
@@ -268,11 +274,11 @@ function getTooltipLines(seed, rarity, permanent)
     local matMaterial = Material(matLevel)
     local _, matBaseRange, matBaseAmount = getMiningSystemBonuses(seed, rarity, false)
     table.insert(texts, {ltext = "Material"%_t, rtext = matMaterial.name%_t, rcolor = matMaterial.color, icon = "data/textures/icons/metal-bar.png", boosted = permanent})
-    table.insert(texts, {ltext = "Material Scanner Range"%_t, rtext = string.format("%g", round(matRange / 100, 2)), icon = "data/textures/icons/rss.png", boosted = permanent})
+    table.insert(texts, {ltext = "Material Scanner Range"%_t, rtext = string.format("%g km", round(matRange / 100, 2)), icon = "data/textures/icons/rss.png", boosted = permanent})
     table.insert(texts, {ltext = "Asteroids"%_t, rtext = string.format("%i", matAmount), icon = "data/textures/icons/rock.png", boosted = permanent})
 
     table.insert(bonuses, {ltext = "Material Level"%_t, rtext = "+1", icon = "data/textures/icons/metal-bar.png"})
-    table.insert(bonuses, {ltext = "Material Scanner Range"%_t, rtext = string.format("+%g", round(matBaseRange * 0.5 / 100, 2)), icon = "data/textures/icons/rss.png"})
+    table.insert(bonuses, {ltext = "Material Scanner Range"%_t, rtext = string.format("+%g km", round(matBaseRange * 0.5 / 100, 2)), icon = "data/textures/icons/rss.png"})
     table.insert(bonuses, {ltext = "Asteroids"%_t, rtext = string.format("+%i", round(matAmount * 0.5)), icon = "data/textures/icons/rock.png"})
 
 	-- turrets
@@ -322,7 +328,7 @@ function getTooltipLines(seed, rarity, permanent)
     table.insert(bonuses, {ltext = "Loot Collection Range"%_t, rtext = "+${distance} km"%_t % {distance = round(lootBaseRange * 2 / 100, 2)}, icon = "data/textures/icons/tractor.png"})
 
     -- transporter
-    local tpRange, fighterCargoPickup = getTransporterBonuses(seed, rarity, permanent)
+    local tpRange, _ = getTransporterBonuses(seed, rarity, permanent)
     if permanent then
         table.insert(texts, {ltext = "Docking Distance"%_t, rtext = "+${distance} km"%_t % {distance = tpRange / 100}, icon = "data/textures/icons/solar-system.png", boosted = permanent})
     else
@@ -406,7 +412,7 @@ function getComparableValues(seed, rarity)
     table.insert(bonus, {name = "Range"%_t, key = "range", value = round(matBaseRange * 0.5 / 100, 2), comp = UpgradeComparison.MoreIsBetter})
     table.insert(bonus, {name = "Asteroids"%_t, key = "asteroids", value = round(matAmount * 0.5), comp = UpgradeComparison.MoreIsBetter})
 
-    local tpRange, fighterCargoPickup = getTransporterBonuses(seed, rarity, permanent)
+    local tpRange, _ = getTransporterBonuses(seed, rarity, permanent)
     table.insert(bonus, {name = "Docking Distance"%_t, key = "docking_distance", value = tpRange / 100, comp = UpgradeComparison.MoreIsBetter})
 
     local subdisprot = getSubspaceDistortionProtectionBonus(rarity)

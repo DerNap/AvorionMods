@@ -75,7 +75,7 @@ function getNumTurrets(seed, rarity, permanent)
 
     local autos = 0
     if permanent then
-        autos = turrets
+        autos = turrets + 10
     end
 
     return turrets, pdcs, autos

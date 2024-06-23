@@ -144,8 +144,8 @@ function onInstalled(seed, rarity, permanent)
 end
 
 
-function onUninstalled(seed, rarity, permanent)
-end
+--function onUninstalled(seed, rarity, permanent)
+--end
 
 function getName(seed, rarity)
     return "AA-Tech Quantum Engine Coprocessor Upgrade MK ${mark}"%_t % {mark = toRomanLiterals(rarity.value + 2)}
@@ -160,7 +160,20 @@ function getIcon(seed, rarity)
 end
 
 function getPrice(seed, rarity)
-    return 10000
+    local price = 100000 -- base
+
+    -- Generator price
+    local genEnergy, genCharge = getGeneratorBonuses(seed, rarity, true)
+    price = price + (genEnergy * 100 * 400 + genCharge * 100 * 300) * 2.5 ^ rarity.value
+
+    -- volocity/acceleration price
+    price = price + 15000 * (2.5 ^ rarity.value)
+
+    -- shield booster price
+    local _, shieldRechargePerm, shieldEmergencyRechargePerm = getShieldBonuses(seed, rarity, true)
+    price = price + (shieldRechargePerm * 100 * 250 + shieldEmergencyRechargePerm * 15000) * 2.5 ^ rarity.value
+
+    return price
 end
 
 function getTooltipLines(seed, rarity, permanent)

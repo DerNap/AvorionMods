@@ -26,7 +26,7 @@ function getTransporterBonuses(seed, rarity, permanent)
 
     local fighterCargoPickup = 0
     if rarity.value >= RarityType.Rare then
-        fighterCargoPickup = 1
+        -- fighterCargoPickup = 1
     end
 
     return range, fighterCargoPickup
@@ -113,10 +113,10 @@ function onInstalled(seed, rarity, permanent)
     end
 end
 
-function onUninstalled(seed, rarity, permanent)
+--function onUninstalled(seed, rarity, permanent)
 -- TODO: Bonusses are not taken away obviously. need to check where needed. otherwise, next restart will resolve the issue
 --       maybe already sector change...
-end
+--end
 
 function getName(seed, rarity)
     return "AA-Tech Fleet Coordinator Coprocessor MK ${mark}"%_t % {mark = toRomanLiterals(rarity.value + 2)}
@@ -198,18 +198,26 @@ function getTooltipLines(seed, rarity, permanent)
         end    
     end
     
+    local toYesNo = function(line, value)
+        if value then
+            line.rtext = "Yes"%_t
+            line.rcolor = ColorRGB(0.3, 1.0, 0.3)
+        else
+            line.rtext = "No"%_t
+            line.rcolor = ColorRGB(1.0, 0.3, 0.3)
+        end
+    end
+    
     -- transporter
     local tpRange, fighterCargoPickup = getTransporterBonuses(seed, rarity, permanent)
     if permanent then
         table.insert(texts, {ltext = "Docking Distance"%_t, rtext = "+${distance} km"%_t % {distance = tpRange / 100}, icon = "data/textures/icons/solar-system.png", boosted = permanent})
-        if fighterCargoPickup > 0 then
-            table.insert(texts, {ltext = "Fighter Cargo Pickup"%_t, icon = "data/textures/icons/fighter.png"})
-        end
+        table.insert(texts, {ltext = "Fighter Cargo Pickup"%_t, icon = "data/textures/icons/fighter.png"})
+        toYesNo(texts[#texts], fighterCargoPickup ~= 0)
     else
         table.insert(bonuses, {ltext = "Docking Distance"%_t, rtext = "+${distance} km"%_t % {distance = tpRange / 100}, icon = "data/textures/icons/solar-system.png", boosted = permanent})
-        if fighterCargoPickup > 0 then
-            table.insert(bonuses, {ltext = "Fighter Cargo Pickup"%_t, icon = "data/textures/icons/fighter.png"})
-        end
+        table.insert(bonuses, {ltext = "Fighter Cargo Pickup"%_t, icon = "data/textures/icons/fighter.png"})
+        toYesNo(bonuses[#bonuses], fighterCargoPickup ~= 0)
     end
 
     -- extra processing power
