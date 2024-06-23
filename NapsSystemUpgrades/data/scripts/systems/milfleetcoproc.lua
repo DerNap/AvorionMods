@@ -26,7 +26,7 @@ function getTransporterBonuses(seed, rarity, permanent)
 
     local fighterCargoPickup = 0
     if rarity.value >= RarityType.Rare then
-        -- fighterCargoPickup = 1
+        fighterCargoPickup = 1
     end
 
     return range, fighterCargoPickup
